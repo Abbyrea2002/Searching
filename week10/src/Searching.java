@@ -8,20 +8,19 @@ import java.util.Random;
 public class Searching
 {
 
-   public static<T> boolean inArray(T[] arr, T entry){
-      boolean found = false;
-      int index = 0;
-
-      while(!found && index < arr.length){
-         if(arr[index++].equals(entry)) found =true;
+   public static<T extends Comparable<T>> boolean inArray(T[] arr, T entry){
+      for (T element : arr) {
+         if (element.compareTo(entry) > 0) return false; // Terminate early
+         if (element.equals(entry)) return true;
       }
-      return found;
+      return false;
    }
 
-   public static <T> boolean inArray_r(T[] arr, int first, int last, T entry){
-      if(first > last) return false;
-      else if(arr[first].equals(entry)) return true;
-      else return inArray_r(arr, first+1, last, entry);
+   public static <T extends Comparable<T>> boolean inArray_r(T[] arr, int first, int last, T entry){
+      if (first > last) return false;
+      if (arr[first].compareTo(entry) > 0) return false; // Terminate early
+      if (arr[first].equals(entry)) return true;
+      return inArray_r(arr, first + 1, last, entry);
    }
 
    public static <T extends Comparable<T>> boolean binarySearch(T[] anArray, int first, int last, T searchValue){
@@ -40,23 +39,79 @@ public class Searching
       Integer[] arr= new Integer[size];
 
       for(int i = 0; i<size; i++){
-         arr[i] = (Integer)random.nextInt(limit);
+         arr[i] = random.nextInt(limit) + 1;
       }
       Arrays.sort(arr);
+      return arr;
+   }
+   public static int[] randomArray(int n, int range){
+      Random rand = new Random();
+      int[] arr = new int[n];
+      for(int i = 0; i<n; i++){
+         arr[i] = rand.nextInt(range) + 1;
+      }
       return arr;
    }
 
    public static void main(String[] args){
       Random random = new Random();
 
-      for(int i = 0; i < 10; i++){
-         Integer[] arr = getRandomAscendingArray(100, 1000);
-         int searchValue = random.nextInt(1000);
-         System.out.println("Array: " + Arrays.toString(arr));
-         System.out.println("Looking for " + searchValue + "... ");
-         System.out.println(binarySearch(arr, 0, arr.length - 1, searchValue));
+
+
+
+      int[] arraySizes = {10, 100, 1000, 5000, 10000, 15000, 20000};
+
+
+
+      for (int arraySize : arraySizes)
+      {
+         long iterativeTime = 0;
+         long recursiveTimeSeq = 0;
+         long recursiveTimeBin = 0;
+         int range = arraySize * 10;
+
+         Integer[] arr = getRandomAscendingArray(arraySize, range);
+         int[] searchValues = randomArray(arraySize, range);
+
+
+         for (int searchValue : searchValues)
+         {
+
+            long startTime = System.nanoTime();
+            inArray(arr, range);
+            long endTime = System.nanoTime();
+            iterativeTime += (endTime - startTime);
+
+            // Measure recursive selection sort time
+            startTime = System.nanoTime();
+            inArray_r(arr, 0, arr.length - 1, searchValue);
+            endTime = System.nanoTime();
+            recursiveTimeSeq += (endTime - startTime);
+
+            startTime = System.nanoTime();
+            binarySearch(arr, 0, arr.length - 1, searchValue);
+            endTime = System.nanoTime();
+            recursiveTimeBin += (endTime - startTime);
+         }
+         System.out.println("Array size: " + arraySize + ", Value range 1-" + range);
+         System.out.println("---------------------------------------------");
+         System.out.println("Iterative Sequential: " + iterativeTime);
+         System.out.println("Recursive Sequential: " + recursiveTimeSeq);
+         System.out.println("Recursive Binary: " + recursiveTimeBin);
          System.out.println();
+
       }
+
+//      Random random = new Random();
+//
+//      for(int i = 0; i < 10; i++){
+//         Integer[] arr = getRandomAscendingArray(100, 1000);
+//         int searchValue = random.nextInt(1000);
+//         System.out.println("Array: " + Arrays.toString(arr));
+//         System.out.println("Looking for " + searchValue + "... ");
+//         System.out.println(binarySearch(arr, 0, arr.length - 1, searchValue));
+//         System.out.println();
+//      }
 
 
 
